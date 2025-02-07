@@ -44,7 +44,7 @@ services:
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
-      - --log.level=INFO
+      - --log.level=${LOG_LEVEL:-INFO}
     environment:
       - TZ=America/Sao_Paulo
       - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
