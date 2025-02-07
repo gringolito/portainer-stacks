@@ -1,0 +1,74 @@
+---
+version: "3.8"
+
+services:
+  traefik:
+    image: traefik:v3.3
+    container_name: traefik
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      home:
+        ipv4_address: ${PUBLIC_IP_ADDRESS}
+      proxy-network:
+    ports:
+      - 80:80 # HTTP entryPoints
+      - 443:443 # HTTPS entryPoints
+      - 8080:8080 # Dashboard WebGui
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - traefik:/traefik
+      - letsencrypt:/letsencrypt
+    command:
+      - --global.checknewversion
+      - --api.insecure=true
+      - --api.dashboard=true
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --providers.file.directory=/traefik
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.web.http.redirections.entrypoint.permanent=true
+      - --entrypoints.web.forwardedHeaders.trustedIPs=${TRUSTED_NETWORKS}
+      - --entrypoints.web.proxyProtocol.trustedIPs=${TRUSTED_NETWORKS}
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.forwardedHeaders.trustedIPs=${TRUSTED_NETWORKS}
+      - --entrypoints.websecure.proxyProtocol.trustedIPs=${TRUSTED_NETWORKS}
+      - --entrypoints.websecure.http.tls.domains[0].main=${PUBLIC_DOMAIN}
+      - --entrypoints.websecure.http.tls.domains[0].sans=*.${PUBLIC_DOMAIN}
+      - --entrypoints.websecure.http.tls.certresolver=letsencrypt
+      - --entrypoints.websecure.http3
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --log.level=INFO
+    environment:
+      - TZ=America/Sao_Paulo
+      - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
+      - CF_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
+    labels:
+      traefik.enable: true
+      traefik.http.routers.traefik.rule: Host(`traefik.${PUBLIC_DOMAIN}`)
+      traefik.http.services.traefik.loadbalancer.server.port: 8080
+
+volumes:
+  traefik:
+    driver_opts:
+      type: "nfs"
+      o: "addr=${NFS_SERVER},rw,sync"
+      device: ":${NFS_TRAEFIK_SHARE}"
+  letsencrypt:
+    driver_opts:
+      type: "nfs"
+      o: "addr=${NFS_SERVER},rw,sync"
+      device: ":${NFS_LETSENCRYPT_SHARE}"
+
+networks:
+  home:
+    external: true
+    name: home-network
+  proxy-network:
+    external: true
