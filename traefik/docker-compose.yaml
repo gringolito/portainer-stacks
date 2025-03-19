@@ -7,7 +7,7 @@ services:
     security_opt:
       - no-new-privileges:true
     networks:
-      home:
+      home-network:
         ipv4_address: ${PUBLIC_IP_ADDRESS}
       proxy-network:
     ports:
@@ -55,18 +55,17 @@ services:
 volumes:
   traefik:
     driver_opts:
-      type: "nfs"
-      o: "addr=${NFS_SERVER},rw,sync"
-      device: ":${NFS_TRAEFIK_SHARE}"
+      type: nfs
+      o: addr=${NFS_SERVER},rw,sync
+      device: :${NFS_TRAEFIK_SHARE}
   letsencrypt:
     driver_opts:
-      type: "nfs"
-      o: "addr=${NFS_SERVER},rw,sync"
-      device: ":${NFS_LETSENCRYPT_SHARE}"
+      type: nfs
+      o: addr=${NFS_SERVER},rw,sync
+      device: :${NFS_LETSENCRYPT_SHARE}
 
 networks:
-  home:
+  home-network:
     external: true
-    name: home-network
   proxy-network:
     external: true

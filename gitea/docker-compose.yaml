@@ -10,7 +10,7 @@ services:
       - USER=git
     restart: always
     networks:
-      home:
+      home-network:
         ipv4_address: ${PUBLIC_IP_ADDRESS}
       proxy-network:
     volumes:
@@ -26,18 +26,17 @@ services:
 volumes:
   data:
     driver_opts:
-      type: "nfs"
-      o: "addr=${NFS_SERVER},rw,sync,nolock"
-      device: ":${NFS_GITEA_SHARE}"
+      type: nfs
+      o: addr=${NFS_SERVER},rw,sync,nolock
+      device: :${NFS_GITEA_SHARE}
   repos:
     driver_opts:
-      type: "nfs"
-      o: "addr=${NFS_SERVER},rw,sync"
-      device: ":${NFS_REPOS_SHARE}"
+      type: nfs
+      o: addr=${NFS_SERVER},rw,sync
+      device: :${NFS_REPOS_SHARE}
 
 networks:
-  home:
+  home-network:
     external: true
-    name: home-network
   proxy-network:
     external: true
