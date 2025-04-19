@@ -1,17 +1,17 @@
 ---
 services:
   server:
-    image: gitea/gitea:1.22
+    image: gitea/gitea:1.23
     container_name: gitea
     environment:
       - TZ=America/Sao_Paulo
-      - USER_UID=${USERID}
-      - USER_GID=${USERID}
+      - USER_UID=${GITEA_USERID}
+      - USER_GID=${GITEA_USERID}
       - USER=git
     restart: always
     networks:
       home-network:
-        ipv4_address: ${PUBLIC_IP_ADDRESS}
+        ipv4_address: ${GITEA_PUBLIC_IP_ADDRESS}
       proxy-network:
     volumes:
       - data:/data
@@ -20,7 +20,7 @@ services:
       - /etc/localtime:/etc/localtime:ro
     labels:
       traefik.enable: true
-      traefik.http.routers.gitea.rule: Host(`git.${PUBLIC_DOMAIN}`)
+      traefik.http.routers.gitea.rule: Host(`git.${GITEA_PUBLIC_DOMAIN}`)
       traefik.http.services.gitea.loadbalancer.server.port: 80
 
 volumes:
