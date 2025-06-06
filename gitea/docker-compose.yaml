@@ -27,7 +27,7 @@ volumes:
   data:
     driver_opts:
       type: nfs
-      o: addr=${NFS_SERVER},rw,sync,nolock
+      o: addr=${NFS_SERVER},rw,sync
       device: :${NFS_GITEA_SHARE}
   repos:
     driver_opts:
