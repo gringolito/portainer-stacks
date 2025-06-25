@@ -34,8 +34,8 @@ services:
     restart: unless-stopped
     labels:
       traefik.enable: true
-      traefik.http.routers.addon.rule: Host(`jackett.${STREMIO_JACKETT_PUBLIC_DOMAIN}`)
-      traefik.http.services.addon.loadbalancer.server.port: 9117
+      traefik.http.routers.jackett.rule: Host(`jackett.${STREMIO_JACKETT_PUBLIC_DOMAIN}`)
+      traefik.http.services.jackett.loadbalancer.server.port: 9117
 
   jackett-stremio:
     image: belmeg/stremio-addon-jackett
@@ -52,8 +52,8 @@ services:
     restart: unless-stopped
     labels:
       traefik.enable: true
-      traefik.http.routers.addon.rule: Host(`stremio-jackett.${STREMIO_JACKETT_PUBLIC_DOMAIN}`)
-      traefik.http.services.addon.loadbalancer.server.port: 3000
+      traefik.http.routers.stremio-jackett.rule: Host(`stremio-jackett.${STREMIO_JACKETT_PUBLIC_DOMAIN}`)
+      traefik.http.services.stremio-jackett.loadbalancer.server.port: 3000
 
 networks:
   proxy-network:
