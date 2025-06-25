@@ -27,12 +27,12 @@ volumes:
   data:
     driver_opts:
       type: nfs
-      o: addr=${NFS_SERVER},rw,sync
+      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
       device: :${NFS_GITEA_SHARE}
   repos:
     driver_opts:
       type: nfs
-      o: addr=${NFS_SERVER},rw,sync
+      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
       device: :${NFS_REPOS_SHARE}
 
 networks:

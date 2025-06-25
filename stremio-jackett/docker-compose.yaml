@@ -63,11 +63,11 @@ volumes:
   jackett-config:
     driver_opts:
       type: nfs
-      o: addr=${STREMIO_JACKETT_NFS_SERVER},rw,sync
+      o: addr=${STREMIO_JACKETT_NFS_SERVER},rw,sync,nfsvers=4
       device: :${JACKETT_CONFIG_NFS_SHARE}
 
   jackett-data:
     driver_opts:
       type: nfs
-      o: addr=${STREMIO_JACKETT_NFS_SERVER},rw,sync
+      o: addr=${STREMIO_JACKETT_NFS_SERVER},rw,sync,nfsvers=4
       device: :${JACKETT_DATA_NFS_SHARE}

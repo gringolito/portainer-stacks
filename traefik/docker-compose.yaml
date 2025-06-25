@@ -60,12 +60,12 @@ volumes:
   traefik:
     driver_opts:
       type: nfs
-      o: addr=${NFS_SERVER},rw,sync
+      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
       device: :${NFS_TRAEFIK_SHARE}
   letsencrypt:
     driver_opts:
       type: nfs
-      o: addr=${NFS_SERVER},rw,sync
+      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
       device: :${NFS_LETSENCRYPT_SHARE}
 
 networks:
