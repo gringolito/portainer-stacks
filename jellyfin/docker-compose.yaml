@@ -1,0 +1,47 @@
+---
+name: jellyfin
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    user: ${JELLYFIN_UID:-1000}:${JELLYFIN_GID:-1000}
+    environment:
+      - TZ=${JELLYFIN_TZ:-America/Sao_Paulo}
+      - JELLYFIN_PublishedServerUrl=https://jellyfin.${JELLYFIN_PUBLIC_DOMAIN}
+    volumes:
+      - config:/config
+      - cache:/cache
+      - media:/media
+    restart: unless-stopped
+    networks:
+      home-network:
+        ipv4_address: ${JELLYFIN_PUBLIC_IP_ADDRESS}
+      proxy-network:
+    labels:
+      traefik.enable: true
+      traefik.http.routers.jellyfin.rule: Host(`jellyfin.${JELLYFIN_PUBLIC_DOMAIN}`)
+      traefik.http.services.jellyfin.loadbalancer.server.port: 80
+
+volumes:
+  config:
+    driver_opts:
+      type: nfs
+      o: addr=${JELLYFIN_NFS_SERVER},rw,sync,nfsvers=4
+      device: :${JELLYFIN_CONFIG_NFS_SHARE}
+  cache:
+    driver_opts:
+      type: nfs
+      o: addr=${JELLYFIN_NFS_SERVER},rw,sync,nfsvers=4
+      device: :${JELLYFIN_CACHE_NFS_SHARE}
+  media:
+    driver_opts:
+      type: nfs
+      o: addr=${JELLYFIN_NFS_SERVER},rw,sync,nfsvers=4
+      device: :${JELLYFIN_MEDIA_NFS_SHARE}
+
+networks:
+  home-network:
+    external: true
+  proxy-network:
+    external: true
