@@ -1,0 +1,24 @@
+---
+services:
+  nutweb:
+    image: ghcr.io/superioone/nut_webgui:latest-amd64-v3
+    container_name: nutweb
+    environment:
+      - UPSD_ADDR=${NUTWEB_NUT_SERVER}
+      - UPSD_PORT=${NUTWEB_NUT_PORT}
+      - UPSD_USER=${NUTWEB_NUT_USERNAME}
+      - UPSD_PASS=${NUTWEB_NUT_PASSWORD}
+      - PORT=${NUTWEB_PORT:-9001}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - proxy-network
+    labels:
+      traefik.enable: true
+      traefik.http.routers.nutweb.rule: Host(`ups.${NUTWEB_PUBLIC_DOMAIN}`)
+      traefik.http.services.nutweb.loadbalancer.server.port: ${NUTWEB_PORT:-9001}
+
+networks:
+  proxy-network:
+    external: true
