@@ -1,0 +1,78 @@
+---
+name: torrent
+
+services:
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - LOG_LEVEL=${FLARESOLVERR_LOG_LEVEL:-info}
+      - LOG_HTML=${FLARESOLVERR_LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${FLARESOLVERR_CAPTCHA_SOLVER:-none}
+      - TZ=${FLARESOLVERR_TZ:-America/Sao_Paulo}
+    networks:
+      proxy-network:
+    restart: unless-stopped
+    labels:
+      traefik.enable: true
+      traefik.http.routers.flaresolverr.rule: Host(`flaresolverr.${FLARESOLVERR_PUBLIC_DOMAIN}`)
+      traefik.http.services.flaresolverr.loadbalancer.server.port: 8191
+
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - TZ=${JACKETT_TZ:-America/Sao_Paulo}
+      - AUTO_UPDATE=true
+    depends_on:
+      - flaresolverr
+    networks:
+      proxy-network:
+    volumes:
+      - jackett-config:/config
+      - jackett-data:/downloads
+    restart: unless-stopped
+    labels:
+      traefik.enable: true
+      traefik.http.routers.jackett.rule: Host(`jackett.${JACKET_PUBLIC_DOMAIN}`)
+      traefik.http.services.jackett.loadbalancer.server.port: 9117
+
+  qbittorrent:
+    image: wernight/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - TZ=${QBITTORRENT_TZ:-America/Sao_Paulo}
+    volumes:
+      - config:/config
+      - torrents:/torrents
+      - data:/data
+    networks:
+      proxy-network:
+    restart: unless-stopped
+    labels:
+      traefik.enable: true
+      traefik.http.routers.qbittorrent.rule: Host(`torrent.${QBITTORRENT_PUBLIC_DOMAIN}`)
+      traefik.http.services.qbittorrent.loadbalancer.server.port: 8080
+
+volumes:
+  config:
+    driver_opts:
+      type: nfs
+      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
+      device: :${NFS_QBITTORRENT_CONFIG_SHARE}
+  torrents:
+    driver_opts:
+      type: nfs
+      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
+      device: :${NFS_TORRENTS_SHARE}
+  data:
+    driver_opts:
+      type: nfs
+      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
+      device: :${NFS_DATA_SHARE}
+  jackett-config:
+  jackett-data:
+
+networks:
+  proxy-network:
+    external: true
