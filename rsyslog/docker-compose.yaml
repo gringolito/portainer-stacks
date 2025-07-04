@@ -1,0 +1,29 @@
+---
+services:
+  rsyslog:
+    image: rsyslog/syslog_appliance_alpine:latest
+    container_name: rsyslog
+    environment:
+      - TZ=America/Sao_Paulo
+      - RSYSLOG_CONF=/config/home.conf
+    volumes:
+      - rsyslog_config:/config,ro
+      - rsyslog_work:/work
+      - rsyslog_logs:/logs
+    networks:
+      home-network:
+        ipv4_address: ${RSYSLOG_PUBLIC_IP_ADDRESS}
+    restart: always
+
+volumes:
+  rsyslog_config:
+  rsyslog_work:
+  rsyslog_logs:
+    driver_opts:
+      type: nfs
+      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
+      device: :${NFS_LOGS_SHARE}
+
+networks:
+  home-network:
+    external: true
