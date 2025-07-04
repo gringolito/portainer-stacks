@@ -4,24 +4,19 @@ services:
     image: gringolito/ser2net:latest
     container_name: ser2net
     networks:
-      home:
-        ipv4_address: ${PUBLIC_IP_ADDRESS}
+      home-network:
+        ipv4_address: ${SER2NET_PUBLIC_IP_ADDRESS}
     environment:
       - SER2NET_CONFIGPATH=/ser2net
     volumes:
-      - ser2net:/ser2net
+      - ser2net_config:/ser2net
     devices:
-      - ${SERIAL_DEVICE}
+      - ${SER2NET_SERIAL_DEVICE}
     restart: unless-stopped
 
 volumes:
-  ser2net:
-    driver_opts:
-      type: nfs
-      o: addr=${NFS_SERVER},rw,sync
-      device: :${NFS_SER2NET_SHARE}
+  ser2net_config:
 
 networks:
-  home:
+  home-network:
     external: true
-    name: home-network
