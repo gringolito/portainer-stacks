@@ -6,10 +6,11 @@ services:
     image: ghcr.io/flaresolverr/flaresolverr:latest
     container_name: flaresolverr
     environment:
+      - TZ=${FLARESOLVERR_TZ:-America/Sao_Paulo}
+      - CAPTCHA_SOLVER=${FLARESOLVERR_CAPTCHA_SOLVER:-none}
+      - LANG=${FLARESOLVERR_LANG:-en_US}
       - LOG_LEVEL=${FLARESOLVERR_LOG_LEVEL:-info}
       - LOG_HTML=${FLARESOLVERR_LOG_HTML:-false}
-      - CAPTCHA_SOLVER=${FLARESOLVERR_CAPTCHA_SOLVER:-none}
-      - TZ=${FLARESOLVERR_TZ:-America/Sao_Paulo}
     networks:
       proxy-network:
     restart: unless-stopped
