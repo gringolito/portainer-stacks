@@ -1,7 +1,7 @@
 ---
 services:
   nutweb:
-    image: ghcr.io/superioone/nut_webgui:latest-amd64-v3
+    image: ghcr.io/superioone/nut_webgui:${NUTWEB_TAG:-latest-amd64-v3}
     container_name: nutweb
     environment:
       - UPSD_ADDR=${NUTWEB_NUT_SERVER}

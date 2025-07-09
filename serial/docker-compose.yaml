@@ -1,7 +1,7 @@
 ---
 services:
   ser2net:
-    image: gringolito/ser2net:latest
+    image: gringolito/ser2net:${SER2NET_TAG:-latest}
     container_name: ser2net
     environment:
       - SER2NET_CONFIGPATH=/ser2net

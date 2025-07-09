@@ -1,7 +1,7 @@
 ---
 services:
   traefik:
-    image: traefik:v3.3
+    image: traefik:${TRAEFIK_TAG:-latest}
     container_name: traefik
     restart: unless-stopped
     security_opt:
@@ -9,8 +9,8 @@ services:
     networks:
       proxy-network:
     ports:
-      - 80:80 # HTTP entryPoints
-      - 443:443 # HTTPS entryPoints
+      - 80:80
+      - 443:443
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik:/traefik
@@ -45,7 +45,7 @@ services:
       - --accesslog=${TRAEFIK_ACCESS_LOGS:-false}
       - --accesslog.otlp=${TRAEFIK_ACCESS_LOG_OLTP:-false}
     environment:
-      - TZ=${TRAEFIK_TIMEZONE:-America/Sao_Paulo}
+      - TZ=${TRAEFIK_TZ:-America/Sao_Paulo}
       - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
       - CF_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
     labels:
