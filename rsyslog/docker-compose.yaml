@@ -10,9 +10,9 @@ services:
       - rsyslog_config:/config,ro
       - rsyslog_work:/work
       - rsyslog_logs:/logs
-    networks:
-      home-network:
-        ipv4_address: ${RSYSLOG_PUBLIC_IP_ADDRESS}
+    ports:
+      - ${RSYSLOG_TCPUDP_PORT:-514}:514
+      - ${RSYSLOG_RELP_PORT:-1601}:1601
     restart: always
 
 volumes:
@@ -23,7 +23,3 @@ volumes:
       type: nfs
       o: addr=${NFS_SERVER},rw,sync,nfsvers=4
       device: :${NFS_LOGS_SHARE}
-
-networks:
-  home-network:
-    external: true

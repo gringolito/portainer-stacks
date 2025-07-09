@@ -4,15 +4,15 @@ services:
     image: gitea/gitea:1.23
     container_name: gitea
     environment:
-      - TZ=America/Sao_Paulo
+      - TZ=${GITEA_TIMEZONE:-America/Sao_Paulo}
       - USER_UID=${GITEA_USERID}
       - USER_GID=${GITEA_USERID}
-      - USER=git
+      - USER=${GITEA_USER:-git}
     restart: always
     networks:
-      home-network:
-        ipv4_address: ${GITEA_PUBLIC_IP_ADDRESS}
       proxy-network:
+    ports:
+      - ${GITEA_SSH_PORT:-2222}:22
     volumes:
       - data:/data
       - repos:/git
@@ -36,7 +36,5 @@ volumes:
       device: :${NFS_REPOS_SHARE}
 
 networks:
-  home-network:
-    external: true
   proxy-network:
     external: true

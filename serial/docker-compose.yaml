@@ -3,20 +3,19 @@ services:
   ser2net:
     image: gringolito/ser2net:latest
     container_name: ser2net
-    networks:
-      home-network:
-        ipv4_address: ${SER2NET_PUBLIC_IP_ADDRESS}
     environment:
       - SER2NET_CONFIGPATH=/ser2net
     volumes:
       - ser2net_config:/ser2net
     devices:
       - ${SER2NET_SERIAL_DEVICE}
+    ports:
+      - ${SER2NET_9600_PORT:-4000}:4000
+      - ${SER2NET_57600_PORT:-4001}:4001
+      - ${SER2NET_115200_PORT:-4002}:4002
+      - ${SER2NET_1500000_PORT:-4003}:4003
+      - ${SER2NET_ADMIN_PORT:-9999}:9999
     restart: unless-stopped
 
 volumes:
   ser2net_config:
-
-networks:
-  home-network:
-    external: true

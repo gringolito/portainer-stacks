@@ -7,13 +7,10 @@ services:
     security_opt:
       - no-new-privileges:true
     networks:
-      home-network:
-        ipv4_address: ${TRAEFIK_PUBLIC_IP_ADDRESS}
       proxy-network:
     ports:
       - 80:80 # HTTP entryPoints
       - 443:443 # HTTPS entryPoints
-      - 8080:8080 # Dashboard WebGui
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - traefik:/traefik
@@ -48,7 +45,7 @@ services:
       - --accesslog=${TRAEFIK_ACCESS_LOGS:-false}
       - --accesslog.otlp=${TRAEFIK_ACCESS_LOG_OLTP:-false}
     environment:
-      - TZ=America/Sao_Paulo
+      - TZ=${TRAEFIK_TIMEZONE:-America/Sao_Paulo}
       - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
       - CF_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
     labels:
@@ -69,7 +66,5 @@ volumes:
       device: :${NFS_LETSENCRYPT_SHARE}
 
 networks:
-  home-network:
-    external: true
   proxy-network:
     external: true

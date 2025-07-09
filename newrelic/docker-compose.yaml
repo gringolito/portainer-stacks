@@ -15,11 +15,7 @@ services:
     restart: unless-stopped
     networks:
       proxy-network:
-      home-network:
-        ipv4_address: ${PUBLIC_IP_ADDRESS}
 
 networks:
   proxy-network:
-    external: true
-  home-network:
     external: true
