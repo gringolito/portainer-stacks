@@ -13,9 +13,3 @@ services:
     environment:
       - NRIA_LICENSE_KEY=${NEWRELIC_LICENSE_KEY}
     restart: unless-stopped
-    networks:
-      proxy-network:
-
-networks:
-  proxy-network:
-    external: true
