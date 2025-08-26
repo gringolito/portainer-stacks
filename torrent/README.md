@@ -23,9 +23,11 @@ This stack deploys a torrent management suite using Docker Compose, including qB
 
 | Variable                        | Description                                | Default Value           | Example                   |
 |----------------------------------|--------------------------------------------|------------------------|---------------------------|
-| `QBITTORRENT_TAG`               | qBittorrent image tag                      | `latest`               | `4.5.2`                   |
+| `QBITTORRENT_TAG`               | qBittorrent image tag                      | `latest`               | `5.1.2`                   |
 | `QBITTORRENT_TZ`                | Timezone for qBittorrent                   |                        | `Europe/Berlin`           |
 | `QBITTORRENT_PUBLIC_DOMAIN`     | Public domain for qBittorrent              |                        | `example.com`             |
+| `QBITTORRENT_UID`              | UID for qbittorrent user                      | `1000`                 | `1000`                    |
+| `QBITTORRENT_GID`              | GID for qbittorrent user                      | `1000`                 | `1000`                    |
 
 ### Jackett
 

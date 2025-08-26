@@ -39,16 +39,22 @@ services:
       traefik.http.services.jackett.loadbalancer.server.port: 9117
 
   qbittorrent:
-    image: wernight/qbittorrent:${QBITTORRENT_TAG:-latest}
+    image: lscr.io/linuxserver/qbittorrent:${QBITTORRENT_TAG:-latest}
     container_name: qbittorrent
     environment:
+      - PUID=${QBITTORRENT_UID:-1000}
+      - PGID=${QBITTORRENT_GID:-1000}
       - TZ=${QBITTORRENT_TZ:-America/Sao_Paulo}
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
     volumes:
       - config:/config
-      - torrents:/torrents
       - data:/data
     networks:
       proxy-network:
+    ports:
+      - 6881:6881
+      - 6881:6881/udp
     restart: unless-stopped
     labels:
       traefik.enable: true
@@ -61,11 +67,6 @@ volumes:
       type: nfs
       o: addr=${NFS_SERVER},rw,sync,nfsvers=4
       device: :${NFS_QBITTORRENT_CONFIG_SHARE}
-  torrents:
-    driver_opts:
-      type: nfs
-      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
-      device: :${NFS_TORRENTS_SHARE}
   data:
     driver_opts:
       type: nfs
