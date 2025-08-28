@@ -67,6 +67,10 @@ This stack deploys a full media management suite using Docker Compose, including
 | Variable                    | Description                                | Default Value           | Example                   |
 |-----------------------------|--------------------------------------------|------------------------|---------------------------|
 | `PROWLARR_TAG`              | Prowlarr image tag                         | `latest`               | `1.0.0.0`                 |
+| `PROWLARR_UID`              | UID for Prowlarr user                      | `1400`                 | `1400`                    |
+| `PROWLARR_GID`              | GID for Prowlarr user                      | `1000`                 | `1000`                    |
+| `PROWLARR_UMAST`            | Umask for Prowlarr                         | `002`                  | `002`                     |
+| `PROWLARR_TZ`               | Timezone for Prowlarr                      | `America/Sao_Paulo`    | `Europe/Berlin`           |
 | `PROWLARR_PUBLIC_DOMAIN`    | Public domain for Prowlarr                 |                        | `example.com`             |
 
 ### Persistent volumes

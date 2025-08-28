@@ -82,10 +82,10 @@ services:
     image: ghcr.io/hotio/prowlarr:${PROWLARR_TAG:-latest}
     container_name: prowlarr
     environment:
-      - TZ=${RADARR_TZ:-America/Sao_Paulo}
-      - PUID=${RADARR_UID:-1400}
-      - PGID=${RADARR_GID:-1000}
-      - UMASK=${RADARR_UMAST:-002}
+      - TZ=${PROWLARR_TZ:-America/Sao_Paulo}
+      - PUID=${PROWLARR_UID:-1400}
+      - PGID=${PROWLARR_GID:-1000}
+      - UMASK=${PROWLARR_UMAST:-002}
     volumes:
       - prowlarr:/config
     networks:
