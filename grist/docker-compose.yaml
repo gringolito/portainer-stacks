@@ -2,7 +2,7 @@
 name: grist
 
 services:
-  jellyfin:
+  grist:
     image: gristlabs/grist:${GRIST_TAG:-latest}
     container_name: grist
     user: ${GRIST_UID:-1000}:${GRIST_GID:-1000}
@@ -24,10 +24,8 @@ services:
 
 volumes:
   persist:
-    driver_opts:
-      type: nfs
-      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
-      device: :${NFS_GRIST_PERSIST_SHARE}
+    external: true
+    name: ${GRIST_PERSIST_VOLUME}
 
 networks:
   proxy-network:
