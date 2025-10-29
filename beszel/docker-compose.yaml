@@ -1,0 +1,49 @@
+---
+name: beszel
+
+services:
+  beszel:
+    image: henrygd/beszel:${BESZEL_TAG:-latest}
+    container_name: beszel
+    environment:
+      TZ: ${BESZEL_TZ:-America/Sao_Paulo}
+    user: ${BESZEL_UID:-1000}:${BESZEL_GID:-1000}
+    # ports:
+    #   - 8090:8090
+    volumes:
+      - bezel-data:/beszel_data
+      - /tmp/beszel_socket:/beszel_socket
+    networks:
+      proxy-network:
+    restart: unless-stopped
+    labels:
+      traefik.enable: true
+      traefik.http.routers.beszel.rule: Host(`beszel.${BESZEL_PUBLIC_DOMAIN}`)
+      traefik.http.services.beszel.loadbalancer.server.port: 8090
+
+  beszel-agent:
+    image: henrygd/beszel-agent:latest
+    container_name: beszel-agent
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - beszel-agent:/var/lib/beszel-agent
+      - /tmp/beszel_socket:/beszel_socket
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      LISTEN: /beszel_socket/beszel.sock
+      HUB_URL: https://beszel.${BESZEL_PUBLIC_DOMAIN}
+      TOKEN: ${BESZEL_TOKEN}
+      KEY: ${BESZEL_KEY}
+
+volumes:
+  beszel-data:
+    external: true
+    name: ${BESZEL_DATA_VOLUME}
+  beszel-agent:
+    external: true
+    name: ${BESZEL_AGENT_VOLUME}
+
+networks:
+  proxy-network:
+    external: true
