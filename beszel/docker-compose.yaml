@@ -11,7 +11,7 @@ services:
     # ports:
     #   - 8090:8090
     volumes:
-      - bezel-data:/beszel_data
+      - beszel-data:/beszel_data
       - /tmp/beszel_socket:/beszel_socket
     networks:
       proxy-network:
