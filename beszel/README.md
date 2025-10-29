@@ -26,8 +26,8 @@ This stack deploys [Beszel](https://github.com/henrygd/beszel) system monitoring
 | `BESZEL_UID`            | UID for Beszel user                | `1000`                 | `1000`                 |
 | `BESZEL_GID`            | GID for Beszel user                | `1000`                 | `1000`                 |
 | `BESZEL_PUBLIC_DOMAIN`  | Public domain for Traefik routing  |                        | `example.com`          |
-| `BESZEL_TOKEN`          | Agent authentication token         |                        | `your-secret-token`    |
-| `BESZEL_KEY`            | Agent encryption key               |                        | `your-encryption-key`  |
+| `BESZEL_API_TOKEN`      | Beszel API token                   |                        | `your-secret-token`    |
+| `BESZEL_PUBLIC_KEY`     | Beszel SSH Public Key              |                        | `beszels-public-key`   |
 | `BESZEL_DATA_VOLUME`    | External volume name for data      |                        | `beszel_data`          |
 | `BESZEL_AGENT_VOLUME`   | External volume name for agent     |                        | `beszel_agent`         |
 
