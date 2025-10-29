@@ -60,6 +60,10 @@ services:
       traefik.enable: true
       traefik.http.routers.qbittorrent.rule: Host(`torrent.${QBITTORRENT_PUBLIC_DOMAIN}`)
       traefik.http.services.qbittorrent.loadbalancer.server.port: 8080
+    deploy:
+      resources:
+        limits:
+          memory: ${QBITTORRENT_MEM_LIMIT:-1g}
 
 volumes:
   config:
