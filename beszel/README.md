@@ -22,6 +22,7 @@ This stack deploys [Beszel](https://github.com/henrygd/beszel) system monitoring
 | Variable                | Description                        | Default Value           | Example                |
 |-------------------------|------------------------------------|------------------------|------------------------|
 | `BESZEL_TAG`            | Beszel image tag                   | `latest`               | `0.1.0`                |
+| `BESZEL_AGENT_TAG`      | Beszel agent image tag             | `latest`               | `0.1.0`                |
 | `BESZEL_TZ`             | Timezone                           | `America/Sao_Paulo`    | `Europe/Berlin`        |
 | `BESZEL_UID`            | UID for Beszel user                | `1000`                 | `1000`                 |
 | `BESZEL_GID`            | GID for Beszel user                | `1000`                 | `1000`                 |
