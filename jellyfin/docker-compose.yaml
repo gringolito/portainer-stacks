@@ -18,6 +18,8 @@ services:
       - 1900:1900 # service discovery (DLNA)
     networks:
       proxy-network:
+    devices:
+      - /dev/dri:/dev/dri
     restart: unless-stopped
     labels:
       traefik.enable: true
