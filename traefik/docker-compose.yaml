@@ -7,18 +7,18 @@ services:
     security_opt:
       - no-new-privileges:true
     networks:
-      proxy-network:
+      - proxy-network
     ports:
-      - 80:80
-      - 443:443
+      - ${TRAEFIK_HTTP_PORT:-80}:80
+      - ${TRAEFIK_HTTPS_PORT:-443}:443
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${TRAEFIK_DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro,z
       - traefik:/traefik
       - letsencrypt:/letsencrypt
     command:
       - --global.checknewversion
-      - --api.insecure=true
-      - --api.dashboard=true
+      - --api.insecure=${TRAEFIK_API_INSECURE:-true}
+      - --api.dashboard=${TRAEFIK_API_DASHBOARD:-true}
       - --providers.docker
       - --providers.docker.exposedbydefault=false
       - --providers.file.directory=/traefik
@@ -55,16 +55,13 @@ services:
 
 volumes:
   traefik:
-    driver_opts:
-      type: nfs
-      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
-      device: :${NFS_TRAEFIK_SHARE}
+    external: true
+    name: ${TRAEFIK_PROVIDER_VOLUME}
   letsencrypt:
-    driver_opts:
-      type: nfs
-      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
-      device: :${NFS_LETSENCRYPT_SHARE}
+    external: true
+    name: ${TRAEFIK_LETSENCRYPT_VOLUME}
 
 networks:
   proxy-network:
     external: true
+    name: ${TRAEFIK_NETWORK}
