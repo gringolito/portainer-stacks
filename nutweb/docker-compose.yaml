@@ -22,3 +22,4 @@ services:
 networks:
   proxy-network:
     external: true
+    name: ${NUTWEB_NETWORK}
