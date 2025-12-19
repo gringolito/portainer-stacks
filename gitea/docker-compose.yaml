@@ -3,10 +3,12 @@ services:
   server:
     image: gitea/gitea:${GITEA_TAG:-latest}
     container_name: gitea
+    security_opt:
+      - no-new-privileges:true
     environment:
       - TZ=${GITEA_TZ:-America/Sao_Paulo}
-      - USER_UID=${GITEA_USERID}
-      - USER_GID=${GITEA_USERID}
+      - USER_UID=${GITEA_USERID:-1000}
+      - USER_GID=${GITEA_GROUPID:-1000}
       - USER=${GITEA_USER:-git}
     restart: always
     networks:
@@ -15,9 +17,7 @@ services:
       - ${GITEA_SSH_PORT:-2222}:22
     volumes:
       - data:/data
-      - repos:/git
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/localtime:/etc/localtime:ro
+      - repositories:/git
     labels:
       traefik.enable: true
       traefik.http.routers.gitea.rule: Host(`git.${GITEA_PUBLIC_DOMAIN}`)
@@ -25,16 +25,13 @@ services:
 
 volumes:
   data:
-    driver_opts:
-      type: nfs
-      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
-      device: :${NFS_GITEA_SHARE}
-  repos:
-    driver_opts:
-      type: nfs
-      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
-      device: :${NFS_REPOS_SHARE}
+    external: true
+    name: ${GITEA_DATA_VOLUME}
+  repositories:
+    external: true
+    name: ${GITEA_REPOSITORIES_VOLUME}
 
 networks:
   proxy-network:
     external: true
+    name: ${GITEA_NETWORK}
