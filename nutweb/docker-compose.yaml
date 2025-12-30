@@ -10,8 +10,11 @@ services:
       - UPSD_PASS=${NUTWEB_NUT_PASSWORD}
       - PORT=${NUTWEB_PORT:-9001}
     restart: unless-stopped
+    cap_drop:
+      - ALL
     security_opt:
       - no-new-privileges:true
+    pids_limit: 512
     networks:
       - proxy-network
     labels:
