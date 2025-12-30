@@ -4,8 +4,14 @@ services:
     image: traefik:${TRAEFIK_TAG:-latest}
     container_name: traefik
     restart: unless-stopped
+    user: ${TRAEFIK_USERID:-1000}:${TRAEFIK_GROUPID:-1000}
+    cap_add:
+      - CAP_NET_BIND_SERVICE
+    cap_drop:
+      - ALL
     security_opt:
       - no-new-privileges:true
+    pids_limit: 512
     networks:
       - proxy-network
     ports:
@@ -15,6 +21,10 @@ services:
       - ${TRAEFIK_DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro,z
       - traefik:/traefik
       - letsencrypt:/letsencrypt
+    environment:
+      - TZ=${TRAEFIK_TZ:-America/Sao_Paulo}
+      - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
+      - CF_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
     command:
       - --global.checknewversion
       - --api.insecure=${TRAEFIK_API_INSECURE:-true}
@@ -44,10 +54,6 @@ services:
       - --tracing=${TRAEFIK_TRACING:-false}
       - --accesslog=${TRAEFIK_ACCESS_LOGS:-false}
       - --accesslog.otlp=${TRAEFIK_ACCESS_LOG_OLTP:-false}
-    environment:
-      - TZ=${TRAEFIK_TZ:-America/Sao_Paulo}
-      - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
-      - CF_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
     labels:
       traefik.enable: true
       traefik.http.routers.traefik.rule: Host(`traefik.${TRAEFIK_PUBLIC_DOMAIN}`)
