@@ -37,5 +37,5 @@ The service is pre-configured for Traefik. Ensure Traefik is running and attache
 
 ## Accessing nutweb
 
-Access the NUT web interface at:  
-`https://nutweb.yourdomain.com`
+Access the NUT web interface at:
+`https://ups.yourdomain.com`

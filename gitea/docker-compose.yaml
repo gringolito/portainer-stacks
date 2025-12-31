@@ -3,9 +3,6 @@ services:
   server:
     image: docker.gitea.com/gitea:${GITEA_TAG:-latest}-rootless
     container_name: gitea
-    # cap_add:
-    #   - CAP_NET_BIND_SERVICE
-    #   - CAP_CHOWN
     cap_drop:
       - ALL
     security_opt:
