@@ -2,83 +2,240 @@
 name: torrent
 
 services:
+  qbittorrent:
+    image: qbittorrentofficial/qbittorrent-nox:${QBITTORRENT_TAG:-latest}
+    container_name: qbittorrent
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    user: ${QBITTORRENT_USERID:-1000}:${QBITTORRENT_GROUPID:-1000}
+    group_add:
+      - ${DOWNLOADS_GROUPID:-1000}
+    environment:
+      TZ: ${QBITTORRENT_TZ:-America/Sao_Paulo}
+      QBT_LEGAL_NOTICE: confirm
+      QBT_TORRENTING_PORT: 6881
+      QBT_WEBUI_PORT: 8080
+      QBT_CONFIG_PATH: /config
+      QBT_DOWNLOADS_PATH: /data
+    volumes:
+      - qbittorrent:/config
+      - downloads:/data
+    networks:
+      proxy-network:
+    ports:
+      - 6881:6881
+    restart: unless-stopped
+    labels:
+      traefik.enable: true
+      traefik.http.routers.qbittorrent.rule: Host(`torrent.${TORRENT_PUBLIC_DOMAIN}`)
+      traefik.http.services.qbittorrent.loadbalancer.server.port: 8080
+    deploy:
+      resources:
+        limits:
+          pids: 512
+          memory: ${QBITTORRENT_MEM_LIMIT:-1g}
+
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:${FLARESOLVERR_TAG:-latest}
     container_name: flaresolverr
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 512
     environment:
-      - TZ=${FLARESOLVERR_TZ:-America/Sao_Paulo}
-      - CAPTCHA_SOLVER=${FLARESOLVERR_CAPTCHA_SOLVER:-none}
-      - LANG=${FLARESOLVERR_LANG:-en_US}
-      - LOG_LEVEL=${FLARESOLVERR_LOG_LEVEL:-info}
-      - LOG_HTML=${FLARESOLVERR_LOG_HTML:-false}
+      TZ: ${FLARESOLVERR_TZ:-America/Sao_Paulo}
+      CAPTCHA_SOLVER: ${FLARESOLVERR_CAPTCHA_SOLVER:-none}
+      LANG: ${FLARESOLVERR_LANG:-en_US}
+      LOG_LEVEL: ${FLARESOLVERR_LOG_LEVEL:-info}
+      LOG_HTML: ${FLARESOLVERR_LOG_HTML:-false}
+    volumes:
+      - flaresolverr:/config
     networks:
       proxy-network:
     restart: unless-stopped
     labels:
       traefik.enable: true
-      traefik.http.routers.flaresolverr.rule: Host(`flaresolverr.${FLARESOLVERR_PUBLIC_DOMAIN}`)
+      traefik.http.routers.flaresolverr.rule: Host(`flaresolverr.${TORRENT_PUBLIC_DOMAIN}`)
       traefik.http.services.flaresolverr.loadbalancer.server.port: 8191
 
   jackett:
     image: lscr.io/linuxserver/jackett:${JACKETT_TAG:-latest}
     container_name: jackett
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 512
+    user: ${JACKETT_USERID:-1000}:${JACKETT_GROUPID:-1000}
+    init: true
+    entrypoint:
+      - /app/Jackett/jackett_launcher.sh
     environment:
-      - TZ=${JACKETT_TZ:-America/Sao_Paulo}
-      - AUTO_UPDATE=true
+      TZ: ${JACKETT_TZ:-America/Sao_Paulo}
+      AUTO_UPDATE: true
+      TMPDIR: /tmp
+    volumes:
+      - jackett:/config
+      # - downloads:/downloads
+    networks:
+      proxy-network:
+    restart: unless-stopped
+    labels:
+      traefik.enable: true
+      traefik.http.routers.jackett.rule: Host(`jackett.${TORRENT_PUBLIC_DOMAIN}`)
+      traefik.http.services.jackett.loadbalancer.server.port: 9117
     depends_on:
       - flaresolverr
-    networks:
-      proxy-network:
-    volumes:
-      - jackett-config:/config
-      - jackett-data:/downloads
-    restart: unless-stopped
-    labels:
-      traefik.enable: true
-      traefik.http.routers.jackett.rule: Host(`jackett.${JACKET_PUBLIC_DOMAIN}`)
-      traefik.http.services.jackett.loadbalancer.server.port: 9117
 
-  qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:${QBITTORRENT_TAG:-latest}
-    container_name: qbittorrent
+  jellyseerr:
+    image: fallenbagel/jellyseerr:${JELLYSEERR_TAG:-latest}
+    container_name: jellyseerr
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 512
+    user: ${JELLYSEERR_USERID:-1000}:${JELLYSEERR_GROUPID:-1000}
     environment:
-      - PUID=${QBITTORRENT_UID:-1000}
-      - PGID=${QBITTORRENT_GID:-1000}
-      - TZ=${QBITTORRENT_TZ:-America/Sao_Paulo}
-      - WEBUI_PORT=8080
-      - TORRENTING_PORT=6881
+      LOG_LEVEL: ${JELLYSEER_LOG_LEVEL:-debug}
+      TZ: ${JELLYSEER_TZ:-America/Sao_Paulo}
     volumes:
-      - config:/config
-      - data:/data
+      - jellyseerr:/app/config
     networks:
       proxy-network:
-    ports:
-      - 6881:6881
-      - 6881:6881/udp
+    restart: unless-stopped
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/status || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
+    labels:
+      traefik.enable: true
+      traefik.http.routers.jellyseerr.rule: Host(`jellyseerr.${TORRENT_PUBLIC_DOMAIN}`)
+      traefik.http.services.jellyseerr.loadbalancer.server.port: 5055
+    depends_on:
+      - sonarr
+      - radarr
+
+  sonarr:
+    image: ghcr.io/hotio/sonarr:${SONARR_TAG:-release}
+    container_name: sonarr
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 512
+    user: ${SONARR_USERID:-1000}:${SONARR_GROUPID:-1000}
+    group_add:
+      - ${DOWNLOADS_GROUPID:-1000}
+    init: true
+    entrypoint:
+      - /app/bin/Sonarr
+      - --nobrowser
+      - --data=/config
+    environment:
+      TZ: ${SONARR_TZ:-America/Sao_Paulo}
+    volumes:
+      - sonarr:/config
+      - downloads:/data
+    networks:
+      proxy-network:
     restart: unless-stopped
     labels:
       traefik.enable: true
-      traefik.http.routers.qbittorrent.rule: Host(`torrent.${QBITTORRENT_PUBLIC_DOMAIN}`)
-      traefik.http.services.qbittorrent.loadbalancer.server.port: 8080
-    deploy:
-      resources:
-        limits:
-          memory: ${QBITTORRENT_MEM_LIMIT:-1g}
+      traefik.http.routers.sonarr.rule: Host(`sonarr.${TORRENT_PUBLIC_DOMAIN}`)
+      traefik.http.services.sonarr.loadbalancer.server.port: 8989
+    depends_on:
+      - qbittorrent
+      - prowlarr
+
+  radarr:
+    image: ghcr.io/hotio/radarr:${RADARR_TAG:-release}
+    container_name: radarr
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 512
+    user: ${RADARR_USERID:-1000}:${RADARR_GROUPID:-1000}
+    group_add:
+      - ${DOWNLOADS_GROUPID:-1000}
+    init: true
+    entrypoint:
+      - /app/bin/Radarr
+      - --nobrowser
+      - --data=/config
+    environment:
+      TZ: ${RADARR_TZ:-America/Sao_Paulo}
+    volumes:
+      - radarr:/config
+      - downloads:/data
+    networks:
+      proxy-network:
+    restart: unless-stopped
+    labels:
+      traefik.enable: true
+      traefik.http.routers.radarr.rule: Host(`radarr.${TORRENT_PUBLIC_DOMAIN}`)
+      traefik.http.services.radarr.loadbalancer.server.port: 7878
+    depends_on:
+      - qbittorrent
+      - prowlarr
+
+  prowlarr:
+    image: ghcr.io/hotio/prowlarr:${PROWLARR_TAG:-release}
+    container_name: prowlarr
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 512
+    user: ${PROWLARR_USERID:-1000}:${PROWLARR_GROUPID:-1000}
+    init: true
+    entrypoint:
+      - /app/bin/Prowlarr
+      - --nobrowser
+      - --data=/config
+    environment:
+      TZ: ${PROWLARR_TZ:-America/Sao_Paulo}
+    volumes:
+      - prowlarr:/config
+    networks:
+      proxy-network:
+    restart: unless-stopped
+    labels:
+      traefik.enable: true
+      traefik.http.routers.prowlarr.rule: Host(`prowlarr.${TORRENT_PUBLIC_DOMAIN}`)
+      traefik.http.services.prowlarr.loadbalancer.server.port: 9696
 
 volumes:
-  config:
-    driver_opts:
-      type: nfs
-      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
-      device: :${NFS_QBITTORRENT_CONFIG_SHARE}
-  data:
-    driver_opts:
-      type: nfs
-      o: addr=${NFS_SERVER},rw,sync,nfsvers=4
-      device: :${NFS_DATA_SHARE}
-  jackett-config:
-  jackett-data:
+  qbittorrent:
+    external: true
+    name: ${QBITTORRENT_CONFIG_VOLUME}
+  downloads:
+    external: true
+    name: ${TORRENT_DOWNLOADS_VOLUME}
+  jackett:
+    external: true
+    name: ${JACKETT_CONFIG_VOLUME}
+  jellyseerr:
+    external: true
+    name: ${JELLYSEERR_CONFIG_VOLUME}
+  sonarr:
+    external: true
+    name: ${SONARR_CONFIG_VOLUME}
+  radarr:
+    external: true
+    name: ${RADARR_CONFIG_VOLUME}
+  prowlarr:
+    external: true
+    name: ${PROWLARR_CONFIG_VOLUME}
+  flaresolverr:
 
 networks:
   proxy-network:
     external: true
+    name: ${TORRENT_NETWORK}
