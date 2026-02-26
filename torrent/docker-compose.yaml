@@ -90,20 +90,21 @@ services:
     depends_on:
       - flaresolverr
 
-  jellyseerr:
-    image: fallenbagel/jellyseerr:${JELLYSEERR_TAG:-latest}
-    container_name: jellyseerr
+  seerr:
+    image: ghcr.io/seerr-team/seerr:${SEERR_TAG:-latest}
+    init: true
+    container_name: seerr
     cap_drop:
       - ALL
     security_opt:
       - no-new-privileges:true
     pids_limit: 512
-    user: ${JELLYSEERR_USERID:-1000}:${JELLYSEERR_GROUPID:-1000}
+    user: ${SEERR_USERID:-1000}:${SEERR_GROUPID:-1000}
     environment:
-      LOG_LEVEL: ${JELLYSEER_LOG_LEVEL:-debug}
-      TZ: ${JELLYSEER_TZ:-America/Sao_Paulo}
+      LOG_LEVEL: ${SEERR_LOG_LEVEL:-debug}
+      TZ: ${SEERR_TZ:-America/Sao_Paulo}
     volumes:
-      - jellyseerr:/app/config
+      - seerr:/app/config
     networks:
       proxy-network:
     restart: unless-stopped
@@ -115,8 +116,8 @@ services:
       retries: 3
     labels:
       traefik.enable: true
-      traefik.http.routers.jellyseerr.rule: Host(`jellyseerr.${TORRENT_PUBLIC_DOMAIN}`)
-      traefik.http.services.jellyseerr.loadbalancer.server.port: 5055
+      traefik.http.routers.seerr.rule: Host(`seerr.${TORRENT_PUBLIC_DOMAIN}`)
+      traefik.http.services.seerr.loadbalancer.server.port: 5055
     depends_on:
       - sonarr
       - radarr
@@ -221,9 +222,9 @@ volumes:
   jackett:
     external: true
     name: ${JACKETT_CONFIG_VOLUME}
-  jellyseerr:
+  seerr:
     external: true
-    name: ${JELLYSEERR_CONFIG_VOLUME}
+    name: ${SEERR_CONFIG_VOLUME}
   sonarr:
     external: true
     name: ${SONARR_CONFIG_VOLUME}
