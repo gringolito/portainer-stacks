@@ -10,13 +10,13 @@ services:
     security_opt:
       - no-new-privileges:true
     group_add:
-      - ${DOCKER_GROUPID:-985}
+      - ${ZABBIX_AGENT_DOCKER_GROUPID:-985}
     environment:
       TZ: ${ZABBIX_AGENT_TZ:-America/Sao_Paulo}
-      ZBX_SERVER_HOST: ${ZABBIX_SERVER_HOST}
+      ZBX_SERVER_HOST: ${ZABBIX_AGENT_SERVER_HOST}
       ZBX_HOSTNAME: ${ZABBIX_AGENT_HOSTNAME}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:z
+      - ${ZABBIX_AGENT_DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:z
     read_only: true
     network_mode: host
     pid: host
