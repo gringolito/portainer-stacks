@@ -19,6 +19,7 @@ This stack deploys a Zabbix Agent 2 container configured to monitor the host and
 
 | Variable | Description | Default Value | Example |
 |---|---|---|---|
+| `DOCKER_GROUPID` | GID used by the Docker daemon | `985` | `985` |
 | `ZABBIX_AGENT_TAG` | Zabbix Agent image tag | `ol-7.0-latest` | `ol-7.0-latest` |
 | `ZABBIX_AGENT_TZ` | Timezone | `America/Sao_Paulo` | `Europe/Berlin` |
 | `ZABBIX_SERVER_HOST` | Zabbix server hostname or IP used by the agent | | `zabbix.example.com` |

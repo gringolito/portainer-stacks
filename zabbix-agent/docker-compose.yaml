@@ -10,7 +10,7 @@ services:
     security_opt:
       - no-new-privileges:true
     group_add:
-      - docker
+      - ${DOCKER_GROUPID:-985}
     environment:
       TZ: ${ZABBIX_AGENT_TZ:-America/Sao_Paulo}
       ZBX_SERVER_HOST: ${ZABBIX_SERVER_HOST}
