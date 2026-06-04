@@ -44,6 +44,8 @@ services:
       - --tracing=${TRAEFIK_TRACING:-false}
       - --accesslog=${TRAEFIK_ACCESS_LOGS:-false}
       - --accesslog.otlp=${TRAEFIK_ACCESS_LOG_OLTP:-false}
+      - --experimental.plugins.statiq.modulename=github.com/hhftechnology/statiq
+      - --experimental.plugins.statiq.version=${TRAEFIK_PLUGIN_STATIQ_VERSION:-v1.0.1}
     environment:
       - TZ=${TRAEFIK_TZ:-America/Sao_Paulo}
       - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
