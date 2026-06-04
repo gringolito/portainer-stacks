@@ -23,6 +23,7 @@ services:
       - ${TRAEFIK_DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro,z
       - traefik:/traefik
       - letsencrypt:/letsencrypt
+      - plugins:/plugins-storage
     environment:
       - TZ=${TRAEFIK_TZ:-America/Sao_Paulo}
       - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
@@ -56,6 +57,8 @@ services:
       - --tracing=${TRAEFIK_TRACING:-false}
       - --accesslog=${TRAEFIK_ACCESS_LOGS:-false}
       - --accesslog.otlp=${TRAEFIK_ACCESS_LOG_OLTP:-false}
+      - --experimental.plugins.statiq.modulename=github.com/hhftechnology/statiq
+      - --experimental.plugins.statiq.version=${TRAEFIK_PLUGIN_STATIQ_VERSION:-v1.0.1}
     labels:
       traefik.enable: true
       traefik.http.routers.traefik.rule: Host(`traefik.${TRAEFIK_PUBLIC_DOMAIN}`)
@@ -68,6 +71,9 @@ volumes:
   letsencrypt:
     external: true
     name: ${TRAEFIK_LETSENCRYPT_VOLUME}
+  plugins:
+    external: true
+    name: ${TRAEFIK_PLUGINS_VOLUME}
 
 networks:
   proxy-network:
