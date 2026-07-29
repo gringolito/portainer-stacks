@@ -28,6 +28,7 @@ services:
       - TZ=${TRAEFIK_TZ:-America/Sao_Paulo}
       - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
       - CF_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
+      - LEGO_DISABLE_CNAME_SUPPORT=true
     command:
       - --global.checknewversion
       - --api.insecure=${TRAEFIK_API_INSECURE:-true}
@@ -51,6 +52,7 @@ services:
       - --entrypoints.websecure.http3
       - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
       - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=${TRAEFIK_LETSENCRYPT_ACME_DNSCHALLENGE_RESOLVER:-1.1.1.1:53,1.0.0.1:53}
       - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --log.level=${TRAEFIK_LOG_LEVEL:-INFO}
