@@ -19,15 +19,11 @@ services:
     ports:
       - ${TRAEFIK_HTTP_PORT:-80}:80
       - ${TRAEFIK_HTTPS_PORT:-443}:443
+      - ${TRAEFIK_API_PORT:-8080}:8080
     volumes:
       - ${TRAEFIK_DOCKER_SOCKET:-/var/run/docker.sock}:/var/run/docker.sock:ro,z
-      - traefik:/traefik
-      - letsencrypt:/letsencrypt
-      - plugins:/plugins-storage
     environment:
       - TZ=${TRAEFIK_TZ:-America/Sao_Paulo}
-      - CF_API_EMAIL=${CLOUDFLARE_EMAIL}
-      - CF_DNS_API_TOKEN=${CLOUDFLARE_DNS_API_TOKEN}
       - LEGO_DISABLE_CNAME_SUPPORT=true
     command:
       - --global.checknewversion
@@ -35,47 +31,14 @@ services:
       - --api.dashboard=${TRAEFIK_API_DASHBOARD:-true}
       - --providers.docker
       - --providers.docker.exposedbydefault=false
-      - --providers.file.directory=/traefik
-      - --providers.file.watch=true
+      - --serverstransport.insecureskipverify
       - --entrypoints.web.address=:80
-      - --entrypoints.web.http.redirections.entrypoint.to=websecure
-      - --entrypoints.web.http.redirections.entrypoint.scheme=https
-      - --entrypoints.web.http.redirections.entrypoint.permanent=true
-      - --entrypoints.web.forwardedHeaders.trustedIPs=${TRAEFIK_TRUSTED_NETWORKS}
-      - --entrypoints.web.proxyProtocol.trustedIPs=${TRAEFIK_TRUSTED_NETWORKS}
       - --entrypoints.websecure.address=:443
-      - --entrypoints.websecure.forwardedHeaders.trustedIPs=${TRAEFIK_TRUSTED_NETWORKS}
-      - --entrypoints.websecure.proxyProtocol.trustedIPs=${TRAEFIK_TRUSTED_NETWORKS}
-      - --entrypoints.websecure.http.tls.domains[0].main=${TRAEFIK_PUBLIC_DOMAIN}
-      - --entrypoints.websecure.http.tls.domains[0].sans=*.${TRAEFIK_PUBLIC_DOMAIN}
-      - --entrypoints.websecure.http.tls.certresolver=letsencrypt
       - --entrypoints.websecure.http3
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
-      - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=${TRAEFIK_LETSENCRYPT_ACME_DNSCHALLENGE_RESOLVER:-1.1.1.1:53,1.0.0.1:53}
-      - --certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}
-      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --log.level=${TRAEFIK_LOG_LEVEL:-INFO}
       - --tracing=${TRAEFIK_TRACING:-false}
       - --accesslog=${TRAEFIK_ACCESS_LOGS:-false}
       - --accesslog.otlp=${TRAEFIK_ACCESS_LOG_OLTP:-false}
-      - --experimental.plugins.statiq.modulename=github.com/hhftechnology/statiq
-      - --experimental.plugins.statiq.version=${TRAEFIK_PLUGIN_STATIQ_VERSION:-v1.0.1}
-    labels:
-      traefik.enable: true
-      traefik.http.routers.traefik.rule: Host(`traefik.${TRAEFIK_PUBLIC_DOMAIN}`)
-      traefik.http.services.traefik.loadbalancer.server.port: 8080
-
-volumes:
-  traefik:
-    external: true
-    name: ${TRAEFIK_PROVIDER_VOLUME}
-  letsencrypt:
-    external: true
-    name: ${TRAEFIK_LETSENCRYPT_VOLUME}
-  plugins:
-    external: true
-    name: ${TRAEFIK_PLUGINS_VOLUME}
 
 networks:
   proxy-network:
