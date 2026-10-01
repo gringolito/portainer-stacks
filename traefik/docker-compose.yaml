@@ -31,6 +31,7 @@ services:
       - --api.dashboard=${TRAEFIK_API_DASHBOARD:-true}
       - --providers.docker
       - --providers.docker.exposedbydefault=false
+      - --providers.docker.network=${TRAEFIK_NETWORK}
       - --serverstransport.insecureskipverify
       - --entrypoints.web.address=:80
       - --entrypoints.websecure.address=:443
